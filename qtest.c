@@ -806,6 +806,10 @@ static bool do_show(int argc, char *argv[])
     }
     return show_queue(0);
 }
+static bool do_hello(int argc, char *argv[])
+{
+    return (bool) printf("Hello, World\n");
+}
 
 static void console_init()
 {
@@ -846,6 +850,7 @@ static void console_init()
               NULL);
     add_param("fail", &fail_limit,
               "Number of times allow queue operations to return false", NULL);
+	add_cmd("hello", do_hello, "                | Print hello message");
 }
 
 /* Signal handlers */
