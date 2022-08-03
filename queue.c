@@ -14,15 +14,38 @@
 /* Create an empty queue */
 struct list_head *q_new()
 {
-    return NULL;
+    /* Malloc queue. */
+    struct list_head *const q = malloc(sizeof(struct list_head));
+    /* Initialize queue if `q` is not NULL. */
+    if (q)
+        INIT_LIST_HEAD(q);
+    return q;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *l) {}
+void q_free(struct list_head *l) {
+   element_t *i, *tmp;
+    if (!l)
+        return;
+    list_for_each_entry_safe (i, tmp, l, list)
+        q_release_element(i);
+    free(l);
+}
 
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
 {
+  if(head==NULL)
+	return false;
+  element_t *new_ele=malloc(sizeof(element_t));//給新節點加入記憶體配置
+  if(new_ele==NULL)
+	return false;
+  new_ele->value=strdup(s);//新的值複製指定的s字串
+  if(new_ele->value==NULL){
+	free(new_ele);
+	return false;
+  }
+  list_add(&new_ele->list,head);  //在頭加入新節點
     return true;
 }
 

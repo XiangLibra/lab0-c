@@ -810,6 +810,40 @@ static bool do_hello(int argc, char *argv[])
 {
     return (bool) printf("Hello, World\n");
 }
+static void q_shuffle(struct list_head *head)
+{
+    // Fisher-Yates shuffle
+    int size;
+    if (!head || list_empty(head))
+        return;
+    size = q_size(head);
+    for (struct list_head *i = head, *j; size > 0; i = j, size--) {
+        j = head->next;
+        for (int k = rand() % size; k > 0; k--)
+            j = j->next;
+        // Swap i->prev and j
+        list_move_tail(i->prev, j);
+        list_move_tail(j, i);
+    }
+}
+static bool do_shuffle(int argc, char *argv[])
+{
+    if (argc != 1) {
+        report(1, "%s takes no arguments", argv[0]);
+        return false;
+    }
+
+    if (!l_meta.l)
+        report(3, "Warning: Try to access null queue");
+    error_check();
+
+    if (exception_setup(true))
+        q_shuffle(l_meta.l);
+    exception_cancel();
+
+    show_queue(3);
+    return !error_check();
+}
 
 static void console_init()
 {
@@ -851,6 +885,7 @@ static void console_init()
     add_param("fail", &fail_limit,
               "Number of times allow queue operations to return false", NULL);
 	add_cmd("hello", do_hello, "                | Print hello message");
+    ADD_COMMAND(shuffle, "                | Shuffle nodes in queue");
 }
 
 /* Signal handlers */
@@ -908,6 +943,7 @@ static void usage(char *cmd)
     printf("\t-l LFILE   Echo results to LFILE\n");
     exit(0);
 }
+
 
 #define GIT_HOOK ".git/hooks/"
 static bool sanity_check()
